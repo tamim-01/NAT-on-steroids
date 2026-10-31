@@ -6,38 +6,75 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"regexp"
 	"strings"
+
+	"golang.org/x/net/publicsuffix"
 )
 
 var challengePrefix = regexp.MustCompile(`/_fs-ch-[A-Za-z0-9]+`)
 var challengeInit = regexp.MustCompile(`init\((\[[^\]]*\]),\s*"([^"]+)",\s*"([^"]+)"`)
 
+// Only fixed step names and HTTP status codes are retained for diagnostics.
+type ChallengeError struct {
+	Step   string
+	Status int
+}
+
+func (e *ChallengeError) Error() string {
+	if e.Step == "interactive-required" {
+		return "Mozilla requires an interactive sign-in security check that this app cannot complete"
+	}
+	if e.Status == 0 {
+		return fmt.Sprintf("Mozilla's sign-in security check could not be completed (%s)", e.Step)
+	}
+	return fmt.Sprintf("Mozilla's sign-in security check could not be completed (%s, HTTP %d)", e.Step, e.Status)
+}
+
 // This implements the bounded PoW/PAT exchange used by the Android client.
 // Interactive challenges remain an explicit error rather than an infinite retry.
 func (a *API) solveChallenge(ctx context.Context) error {
-	const agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+	// Re-solving must not reuse an old completion cookie, which can hide the
+	// challenge page. Keep the same transport and request identity as the API.
+	jar, _ := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
+	client := *a.HTTP
+	client.Jar = jar
+	type issuedCookie struct {
+		origin *url.URL
+		cookie *http.Cookie
+	}
+	var issued []issuedCookie
 	fetch := func(method, endpoint string, body []byte) ([]byte, int, error) {
 		req, err := http.NewRequestWithContext(ctx, method, endpoint, bytes.NewReader(body))
 		if err != nil {
 			return nil, 0, err
 		}
-		req.Header.Set("User-Agent", agent)
+		req.Header.Set("User-Agent", accountUserAgent)
 		req.Header.Set("Accept", "*/*")
 		if method == "POST" {
 			req.Header.Set("Content-Type", "application/json")
 			u, _ := url.Parse(endpoint)
 			req.Header.Set("Origin", u.Scheme+"://"+u.Host)
 		}
-		resp, err := a.HTTP.Do(req)
+		resp, err := client.Do(req)
 		if err != nil {
 			return nil, 0, err
 		}
 		defer resp.Body.Close()
+		issuer := req.URL
+		if resp.Request != nil {
+			issuer = resp.Request.URL
+		}
+		for _, cookie := range resp.Cookies() {
+			if strings.HasPrefix(cookie.Name, "_fs_ch_cp_") {
+				issued = append(issued, issuedCookie{issuer, cookie})
+			}
+		}
 		b, err := io.ReadAll(io.LimitReader(resp.Body, 2<<20))
 		return b, resp.StatusCode, err
 	}
@@ -76,20 +113,20 @@ func (a *API) solveChallenge(ctx context.Context) error {
 				case "pow":
 					suffix := solvePOW(ch.Data["base"], ch.Data["hash"])
 					if suffix == "" {
-						return errors.New("account proof-of-work challenge failed")
+						return &ChallengeError{Step: "proof-of-work"}
 					}
 					answers = append(answers, map[string]string{"ty": "pow", "base": ch.Data["base"], "answer": suffix, "hmac": ch.Data["hmac"], "expires": ch.Data["expires"]})
 				case "pat":
 					body, status, e := fetch("POST", base+"/pat?token="+url.QueryEscape(token), nil)
 					if e != nil {
-						return errors.New("account challenge could not be completed")
+						return &ChallengeError{Step: "private-access-token"}
 					}
 					var pat struct {
 						Auth string `json:"auth"`
 					}
 					if status != 400 && status != 401 {
 						if status != 200 {
-							return errors.New("account challenge was rejected")
+							return &ChallengeError{Step: "private-access-token", Status: status}
 						}
 						_ = json.Unmarshal(body, &pat)
 					}
@@ -97,7 +134,7 @@ func (a *API) solveChallenge(ctx context.Context) error {
 				case "clientmetrics":
 					answers = append(answers, map[string]any{"ty": "clientmetrics", "webdriver": false, "bot_detection_result": map[string]any{"bot_detected": false, "bot_kind": nil}, "browser_metrics": map[string]any{"client_data": "{}", "error_trace": nil}, "detector_results": map[string]any{}, "v": 2})
 				default:
-					return errors.New("account service requires an interactive challenge; try signing in to Firefox first")
+					return &ChallengeError{Step: "interactive-required"}
 				}
 			}
 			body, _ := json.Marshal(map[string]any{"token": token, "data": answers})
@@ -114,16 +151,33 @@ func (a *API) solveChallenge(ctx context.Context) error {
 				break
 			}
 			if response.Status == "success" {
-				// The challenge hosts issue cookies consumed by the Firefox API host.
-				u, _ := url.Parse(origin)
-				cookies := a.HTTP.Jar.Cookies(u)
-				domain, _ := url.Parse("https://api.accounts.firefox.com")
-				for _, cookie := range cookies {
-					cookie.Domain = ".firefox.com"
-					cookie.Path = "/"
-					cookie.Secure = true
+				// A successful post-back alone is insufficient. Require a completed
+				// challenge cookie whose original scope already covers the API.
+				domain, _ := url.Parse(a.AuthURL + "/")
+				complete := map[string]string{}
+				for _, cookie := range jar.Cookies(domain) {
+					if strings.HasPrefix(cookie.Name, "_fs_ch_cp_") {
+						complete[cookie.Name] = cookie.Value
+					}
 				}
-				a.HTTP.Jar.SetCookies(domain, cookies)
+				if len(complete) == 0 {
+					return &ChallengeError{Step: "completion-cookie", Status: status}
+				}
+				if a.HTTP.Jar == nil {
+					a.HTTP.Jar, _ = cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
+				}
+				// Preserve issuer scope, expiry and flags so a new cookie replaces
+				// the old entry instead of creating a shadowing duplicate.
+				installed := false
+				for _, item := range issued {
+					if value, ok := complete[item.cookie.Name]; ok && value == item.cookie.Value {
+						a.HTTP.Jar.SetCookies(item.origin, []*http.Cookie{item.cookie})
+						installed = true
+					}
+				}
+				if !installed {
+					return &ChallengeError{Step: "completion-cookie", Status: status}
+				}
 				return nil
 			}
 			list = response.Challenges
@@ -133,7 +187,7 @@ func (a *API) solveChallenge(ctx context.Context) error {
 			}
 		}
 	}
-	return errors.New("account service challenge could not be completed; try again on a stable connection")
+	return &ChallengeError{Step: "challenge-exchange"}
 }
 
 func solvePOW(base, target string) string {

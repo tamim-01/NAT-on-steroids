@@ -34,6 +34,8 @@ const (
 	scope         = "profile https://identity.mozilla.com/apps/vpn"
 	protocol      = "identity.mozilla.com/picl/v1/"
 	userAgent     = "MozillaVPN/2.35.0 (sys:linux; iap:true)"
+	// Account requests must use the same identity as their challenge exchange.
+	accountUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
 )
 
 type Auth struct {
@@ -56,6 +58,8 @@ func NewAPI() *API {
 type APIError struct {
 	Status, Errno int
 	Message       string
+	Operation     string
+	Challenged    bool
 }
 
 func (e *APIError) Error() string { return fmt.Sprintf("%s (HTTP %d)", e.Message, e.Status) }
@@ -110,6 +114,18 @@ func hawk(method, endpoint, session string, body []byte) (string, error) {
 }
 
 func (a *API) request(ctx context.Context, method, endpoint, session, bearer string, input, output any) (http.Header, error) {
+	accountRequest := strings.HasPrefix(endpoint, strings.TrimRight(a.AuthURL, "/")+"/")
+	operation := "service"
+	if accountRequest {
+		switch strings.TrimPrefix(endpoint, strings.TrimRight(a.AuthURL, "/")+"/") {
+		case "account/login":
+			operation = "login"
+		case "session/verify_code":
+			operation = "email-verification"
+		case "oauth/token":
+			operation = "token-exchange"
+		}
+	}
 	var data []byte
 	var err error
 	if input != nil {
@@ -124,6 +140,9 @@ func (a *API) request(ctx context.Context, method, endpoint, session, bearer str
 			return nil, err
 		}
 		req.Header.Set("User-Agent", userAgent)
+		if accountRequest {
+			req.Header.Set("User-Agent", accountUserAgent)
+		}
 		req.Header.Set("Accept", "application/json")
 		if input != nil {
 			req.Header.Set("Content-Type", "application/json")
@@ -147,7 +166,12 @@ func (a *API) request(ctx context.Context, method, endpoint, session, bearer str
 		if readErr != nil {
 			return nil, errors.New("account service response was interrupted")
 		}
-		if resp.StatusCode == 406 && attempt == 0 {
+		var api struct {
+			Message string `json:"message"`
+			Errno   int    `json:"errno"`
+		}
+		_ = json.Unmarshal(body, &api)
+		if accountRequest && resp.StatusCode == 406 && api.Errno == 0 && api.Message == "" && attempt == 0 {
 			if err := a.solveChallenge(ctx); err != nil {
 				return nil, err
 			}
@@ -155,11 +179,6 @@ func (a *API) request(ctx context.Context, method, endpoint, session, bearer str
 		}
 		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 			// Only expose parsed API messages, never arbitrary response pages or tokens.
-			var api struct {
-				Message string `json:"message"`
-				Errno   int    `json:"errno"`
-			}
-			_ = json.Unmarshal(body, &api)
 			if api.Message == "" {
 				api.Message = "account service rejected the request"
 			}
@@ -169,7 +188,10 @@ func (a *API) request(ctx context.Context, method, endpoint, session, bearer str
 			if resp.StatusCode == 429 {
 				api.Message = "account quota or request limit reached; try again later"
 			}
-			return resp.Header, &APIError{resp.StatusCode, api.Errno, api.Message}
+			if accountRequest && resp.StatusCode == 406 && api.Errno == 0 {
+				api.Message = "Mozilla's sign-in security check rejected the app"
+			}
+			return resp.Header, &APIError{Status: resp.StatusCode, Errno: api.Errno, Message: api.Message, Operation: operation, Challenged: attempt > 0}
 		}
 		if output != nil && len(body) > 0 {
 			if err = json.Unmarshal(body, output); err != nil {
