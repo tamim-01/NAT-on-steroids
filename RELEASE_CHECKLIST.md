@@ -1,6 +1,8 @@
 # Publication checklist — 0.7.1
 
-This file tracks the local publication candidate. Checked local preparation does not mean a GitHub repository, tag, or release has been published.
+Version 0.7.1 was published as an experimental prerelease after maintainer approval. [Repository](https://github.com/tamim-01/NAT-on-steroids) · [Release and downloads](https://github.com/tamim-01/NAT-on-steroids/releases/tag/v0.7.1).
+
+The release tag remains on the reviewed source commit `ee31a0a`; this later documentation update records publication. Uploaded asset hashes and sizes were verified against the tested local files before publication.
 
 - [x] Add source exclusions and inspect the exact Git file set.
 - [x] Scan that file set for credentials and personal data; inspect the results without printing sensitive values.
@@ -14,7 +16,7 @@ This file tracks the local publication candidate. Checked local preparation does
 - [x] Prepare source and binary archives, checksums, and release notes outside source control.
 - [x] Choose the GitHub owner/repository and private vulnerability-reporting channel.
 - [x] Create the reviewed initial source commit locally using the maintainer-supplied identity.
-- [ ] Create the GitHub repository, push the release tag, and publish the release after final approval.
+- [x] Create the GitHub repository, push the release tag, and publish the release after final approval.
 
 ## Local verification — 2026-10-31
 

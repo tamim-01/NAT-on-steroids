@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.1 — publication candidate
+## 0.7.1 — experimental release
 
 - Renamed the app, native window, project, launcher, executable, and Debian package to **NAT-on-steroids**.
 - Retained existing settings and account identifiers so earlier N-orm proxy installations can upgrade. The package replaces the old launcher.
