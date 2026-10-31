@@ -1,0 +1,40 @@
+# Local dependencies and generated builds
+/bin/
+/build/
+/work/
+/frontend/node_modules/
+/frontend/dist/
+/BUILDINFO.json
+
+# Local browser runs, logs, and Python caches
+.playwright-cli/
+.playwright/
+playwright-report/
+test-results/
+__pycache__/
+*.py[cod]
+*.log
+
+# Local credentials, runtime state, and signing material
+.env
+.env.*
+!.env.example
+settings.json
+auth.json
+credentials.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.kdbx
+
+# Release downloads belong in Releases, outside source control
+*.deb
+*.tar.gz
+*.zip
+*.AppImage
+
+# Editor and OS state
+.idea/
+.DS_Store
+*~

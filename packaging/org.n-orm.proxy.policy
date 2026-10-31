@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN" "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <action id="org.n-orm.proxy.tun">
+    <description>Set up NAT-on-steroids system-wide routing</description>
+    <message>Administrator authorization is required to connect NAT-on-steroids in TUN mode.</message>
+    <icon_name>/usr/share/pixmaps/n-orm-proxy.png</icon_name>
+    <defaults><allow_any>no</allow_any><allow_inactive>no</allow_inactive><allow_active>auth_admin_keep</allow_active></defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/lib/n-orm-proxy/n-orm-helper</annotate>
+  </action>
+</policyconfig>

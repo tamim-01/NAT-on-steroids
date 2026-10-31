@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=NAT-on-steroids
+Comment=Unofficial Firefox VPN client
+Exec=/usr/lib/n-orm-proxy/nat-on-steroids
+Icon=/usr/share/pixmaps/n-orm-proxy.png
+Terminal=false
+Categories=Network;Security;
+StartupWMClass=nat-on-steroids

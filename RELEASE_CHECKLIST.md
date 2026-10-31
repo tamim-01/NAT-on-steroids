@@ -1,0 +1,36 @@
+# Publication checklist — 0.7.1
+
+This file tracks the local publication candidate. Checked local preparation does not mean a GitHub repository, tag, or release has been published.
+
+- [x] Add source exclusions and inspect the exact Git file set.
+- [x] Scan that file set for credentials and personal data; inspect the results without printing sensitive values.
+- [x] Resolve the bundled artwork's redistribution license.
+- [x] Preserve upstream license notices and verify the bundled dependency versions.
+- [x] Document fresh-clone builds, installation, storage, privileged helpers, and routing limitations.
+- [x] Build from a clean source export using the documented build script.
+- [x] Run Go tests, frontend checks, and native startup/resize verification.
+- [x] Check both helpers using isolated kernel routing tests; do not alter the host VPN or routes.
+- [ ] Verify the release package's launcher, policies, binary checksums, ownership, and permissions.
+- [ ] Prepare source and binary archives, checksums, and release notes outside source control.
+- [x] Choose the GitHub owner/repository and private vulnerability-reporting channel.
+- [ ] Create the release commit/tag and hosted release after final review.
+
+## Local verification — 2026-10-31
+
+- Reviewed 74 staged files. The staged text pattern scan found no private keys, common API credentials, JWTs, unexpected personal email addresses, or personal absolute paths. The maintainer contact address was explicitly supplied for this preparation. This is not an exhaustive security audit.
+- A source export with no generated frontend, binaries, dependencies, logs, or settings built using `scripts/build.sh`, the pinned upstream hev commit/submodules, and locked npm dependencies. Existing Go module caches and isolated GTK/WebKit development headers were used; this was not a separate clean operating-system installation.
+- Go race tests passed for all five packages; `go vet` passed. Svelte reported zero errors and warnings; Vite built successfully. Native startup, title, legacy saved theme, and 420 × 480 resize passed on isolated X11/D-Bus.
+- Both clean-built helpers and the clean-built engine passed actual kernel routing checks inside disposable mount/network namespaces: original TUN capture, marked Direct, verified TLS/DoH, address filtering, live rule revocation, occupied-priority rejection, and EOF/SIGTERM cleanup. Host installation and routes were unchanged.
+- Debian package contents match the tested binaries. Launcher/policy targets, root ownership, permissions, bundled documentation, and exclusion of local artifacts were verified.
+- Existing upstream notices were retained verbatim, including their original whitespace; bundled hev/submodule notices match the pinned sources. Core frontend notice versions match the lockfile.
+- The owner authorized MIT for both identical bundled logo copies.
+- Known residual: npm reports three low entries from one unpatched build-toolchain advisory; details and date are in `SECURITY.md`. The warning is not suppressed.
+- Planned repository: `tamim-01/NAT-on-steroids`; maintainer contact is in `SECURITY.md`. No repository has been created or published.
+
+## Deferred by agreement
+
+The Firefox Desktop OAuth client ID and inherited user-agent remain unchanged. A dedicated Mozilla registration and authentication redesign are separate future work.
+
+## Live checks that remain outside automated coverage
+
+Authenticated Mozilla sign-in, live account allowance, real website split routing, long-running reliability, and desktop authorization caching have not been independently verified for this publication candidate. Controlled local and namespace tests must not be described as those live checks.
