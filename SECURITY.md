@@ -10,8 +10,8 @@ Do not include passwords, access or refresh tokens, keyring exports, real browsi
 
 - The current sign-in form accepts the Mozilla account password inside the desktop app. The Go backend derives the protocol's authentication value and authenticates over certificate-verified HTTPS. This is not a browser redirect sign-in flow.
 - Passwords are not intentionally saved to disk. Access and refresh tokens are held in the Go backend and saved through the desktop Secret Service keyring. They are not returned in UI state. A locked or unavailable keyring can leave changes limited to the current session, with a warning in the app.
-- Settings, including domain rules, remain in `$XDG_CONFIG_HOME/n-orm-proxy/settings.json`, normally `~/.config/n-orm-proxy/settings.json`. This file is private to the user and does not contain account tokens. Rule domains can still reveal personal preferences; do not publish your settings.
-- The legacy keyring service identifier `foxyvpn-linux`, helper paths, and Polkit action IDs are retained for compatibility with earlier names.
+- Settings, including domain rules, are stored in the app’s private `settings.json` beneath `$XDG_CONFIG_HOME`, normally `~/.config/`. This file is private to the user and does not contain account tokens. Rule domains can still reveal personal preferences; do not publish your settings.
+- Account storage identifiers, helper paths, and Polkit action IDs are stable across upgrades.
 - Do not attach keyring contents, authentication responses, or crash dumps to public issues.
 
 ## External connections

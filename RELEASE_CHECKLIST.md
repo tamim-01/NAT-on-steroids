@@ -2,7 +2,7 @@
 
 Version 0.7.1 was published as an experimental prerelease after maintainer approval. [Repository](https://github.com/tamim-01/NAT-on-steroids) · [Release and downloads](https://github.com/tamim-01/NAT-on-steroids/releases/tag/v0.7.1).
 
-The release tag remains on the reviewed source commit `ee31a0a`; this later documentation update records publication. Uploaded asset hashes and sizes were verified against the tested local files before publication.
+The release tag identifies the source used for the current downloads. The release files and checksums are refreshed when documentation and diagnostic branding is updated; checksums from earlier downloads do not apply to refreshed assets.
 
 - [x] Add source exclusions and inspect the exact Git file set.
 - [x] Scan that file set for credentials and personal data; inspect the results without printing sensitive values.
@@ -38,3 +38,7 @@ The Firefox Desktop OAuth client ID and inherited user-agent remain unchanged. A
 ## Live checks that remain outside automated coverage
 
 Authenticated Mozilla sign-in, live account allowance, real website split routing, long-running reliability, and desktop authorization caching have not been independently verified for this publication candidate. Controlled local and namespace tests must not be described as those live checks.
+
+## Documentation and diagnostic refresh — 2026-10-31
+
+Current documents and diagnostic messages use NAT-on-steroids consistently. Obsolete local browser-test snapshots were removed. Helper changes are limited to five displayed strings; routing, compatibility paths, account storage, and OAuth identity are unchanged. Both helper test suites pass. Refreshed release downloads include matching source and regenerated checksums.

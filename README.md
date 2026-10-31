@@ -32,7 +32,7 @@ Checksums detect accidental differences; these artifacts are not signed and do n
 
 The Debian package targets Debian/Ubuntu-style systems with GTK3, WebKitGTK 4.1, and glibc 2.34 or newer. Debian 13 is the tested build environment; other distributions are unverified. Open **NAT-on-steroids** from the application launcher after installation.
 
-The package replaces the previous `n-orm-proxy` or `foxyvpn-linux` launcher. Close earlier instances before upgrading. Existing settings and saved accounts keep their legacy storage identifiers.
+Close earlier instances before upgrading. Existing settings and saved accounts are retained automatically.
 
 The binary archive can be extracted and launched with `./run.sh`. It requires the same desktop libraries. Use the installed Debian package for TUN so helper ownership and authorization policies are configured. A Git source checkout has no built executables; build it first.
 
@@ -70,7 +70,7 @@ Open **Appearance and monitoring** to select a theme, independent traffic visual
 
 Server pings measure HTTP/2 PING round trips to the proxy edge, excluding connection setup. Scans run only while disconnected, with up to six parallel checks and a one-minute scan limit. Connected latency probes use the same edge protocol and never overlap. They are separate from traffic-health checks and token renewal. Results do not measure destination website speed or prove account eligibility.
 
-Settings and domain rules are saved in `~/.config/n-orm-proxy/settings.json`, or the equivalent XDG configuration directory. Account tokens use the desktop Secret Service keyring; a locked keyring causes a warning and can limit changes to the current session. See [SECURITY.md](SECURITY.md) for sign-in behavior and external services.
+Settings and domain rules are saved in the app’s private `settings.json` beneath your XDG configuration directory, normally `~/.config/`. Account tokens use the desktop Secret Service keyring; a locked keyring causes a warning and can limit changes to the current session. See [SECURITY.md](SECURITY.md) for sign-in behavior and external services.
 
 ## Build from a fresh source checkout
 
@@ -117,7 +117,10 @@ Tests use local fake account/proxy services and an isolated Secret Service. They
 Actual kernel routing can be checked **only in disposable network and mount namespaces**, after installing the helpers, using Python 3, iproute2, OpenSSL, and util-linux:
 
 ```sh
-sudo unshare --mount --net --fork python3 scripts/test-steroid-netns.py   --helper /usr/lib/n-orm-proxy/n-orm-steroid-helper --uid "$(id -u)"
+experimental_helper=$(dpkg-query -L nat-on-steroids | sed -n '/\/[^/]*steroid-helper$/p')
+test -n "$experimental_helper"
+sudo unshare --mount --net --fork python3 scripts/test-steroid-netns.py \
+  --helper "$experimental_helper" --uid "$(id -u)"
 ```
 
 The script refuses the host namespaces. It uses fake VPN, DNS, and web endpoints and checks normal TUN capture, marked Direct bypass, rule revocation, public-address filtering, occupied-priority rejection, and EOF/SIGTERM cleanup. Controlled endpoint tests do not establish real website compatibility or an independent security audit.

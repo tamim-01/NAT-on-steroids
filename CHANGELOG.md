@@ -3,7 +3,7 @@
 ## 0.7.1 — experimental release
 
 - Renamed the app, native window, project, launcher, executable, and Debian package to **NAT-on-steroids**.
-- Retained existing settings and account identifiers so earlier N-orm proxy installations can upgrade. The package replaces the old launcher.
+- Retained saved settings and accounts across upgrades. The package updates the launcher automatically.
 - Kept the standard and experimental tunnel behavior from 0.7.0. Publication preparation changes source exclusions, documentation, and release packaging; it does not change OAuth identity or routing.
 - Added GitHub-oriented build/install instructions and security/privacy documentation. Release downloads include checksums; they are not signed.
 

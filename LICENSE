@@ -1,6 +1,5 @@
 MIT License
 
-Copyright (c) 2026 N-orm proxy contributors
 Copyright (c) 2026 NAT-on-steroids contributors
 Copyright (c) 2026 Vauth (ported protocol implementation)
 
@@ -22,6 +21,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-This license also covers the owner-supplied logo artwork in frontend/public/logo.png
-and packaging/n-orm-proxy.png, with the owner's permission. Third-party components
+This license also covers both bundled copies of the owner-supplied logo artwork,
+with the owner's permission. Third-party components
 retain their respective copyrights and licenses; see licenses/.

@@ -61,7 +61,7 @@ func (r *runner) cleanup() error {
 		}
 		for _, rule := range rules {
 			if rule.Priority == 18576 || rule.Priority == 18577 {
-				return errors.New("N-orm proxy routing rules remain; check priorities 18576 and 18577")
+				return errors.New("NAT-on-steroids routing rules remain; check priorities 18576 and 18577")
 			}
 		}
 		data, err = r.run(family, "route", "show", "table", table)
@@ -69,7 +69,7 @@ func (r *runner) cleanup() error {
 			return errors.New("could not verify routing table cleanup")
 		}
 		if err == nil && len(strings.TrimSpace(string(data))) > 0 {
-			return errors.New("N-orm proxy routing table 18577 was not cleared")
+			return errors.New("NAT-on-steroids routing table 18577 was not cleared")
 		}
 	}
 	return nil
@@ -133,7 +133,7 @@ func run() (result error) {
 	}
 	defer lock.Close()
 	if syscall.Flock(int(lock.Fd()), syscall.LOCK_EX|syscall.LOCK_NB) != nil {
-		return errors.New("another N-orm proxy TUN session is active")
+		return errors.New("another NAT-on-steroids TUN session is active")
 	}
 	r := &runner{ip: ip}
 	for _, family := range []string{"-4", "-6"} {
@@ -159,7 +159,7 @@ func run() (result error) {
 	}
 	name := "fxvpn" + strconv.FormatUint(uid, 10)
 	if _, e := r.run("link", "show", "dev", name); e == nil {
-		return errors.New("a N-orm proxy interface already exists; check an earlier session before reconnecting")
+		return errors.New("a NAT-on-steroids interface already exists; check an earlier session before reconnecting")
 	}
 	exe, err := os.Executable()
 	if err != nil {

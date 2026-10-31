@@ -169,7 +169,7 @@ func run() (result error) {
 	}
 	uid, err := strconv.ParseUint(os.Getenv("PKEXEC_UID"), 10, 32)
 	if err != nil || uid == 0 {
-		return errors.New("launch this helper from N-orm proxy")
+		return errors.New("launch this helper from NAT-on-steroids")
 	}
 	if len(os.Args) != 3 {
 		return errors.New("expected a SOCKS port and VPN edge IPv4 address")
