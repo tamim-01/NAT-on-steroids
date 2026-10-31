@@ -19,7 +19,7 @@ An experimental Linux desktop client for Firefox’s proxy service, built with G
 
 ## Install a release
 
-Publication candidate: **0.7.1**, Linux **x86_64**. There is no hosted release yet. Once published, download the Debian package or binary archive and `SHA256SUMS` from [this repository’s Releases page](https://github.com/tamim-01/NAT-on-steroids/releases). Do not download executables from issue attachments or unknown mirrors.
+Version **0.7.1**, Linux **x86_64**. When a release is available, download the Debian package or binary archive and `SHA256SUMS` from [this repository’s Releases page](https://github.com/tamim-01/NAT-on-steroids/releases). Do not download executables from issue attachments or unknown mirrors.
 
 Check the matching checksum before installation. For an individual download, compare its `sha256sum` result with the corresponding line in `SHA256SUMS`. If all three release files are present, run:
 
@@ -82,7 +82,7 @@ For Debian/Ubuntu, install native build dependencies:
 sudo apt install build-essential pkg-config git libgtk-3-dev libwebkit2gtk-4.1-dev
 ```
 
-Once the repository is published, clone it with the following command, or extract the source archive:
+Clone the repository, or extract the source archive:
 
 ```sh
 git clone https://github.com/tamim-01/NAT-on-steroids.git

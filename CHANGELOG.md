@@ -7,7 +7,7 @@
 - Kept the standard and experimental tunnel behavior from 0.7.0. Publication preparation changes source exclusions, documentation, and release packaging; it does not change OAuth identity or routing.
 - Added GitHub-oriented build/install instructions and security/privacy documentation. Release downloads include checksums; they are not signed.
 
-Verification for the prepared candidate is recorded in `RELEASE_CHECKLIST.md`. There is no hosted release yet. The known unpatched, low-severity frontend build-tool dependency advisory is documented in `SECURITY.md`; this release does not claim a clean dependency audit.
+Verification for the prepared candidate is recorded in `RELEASE_CHECKLIST.md`. The known unpatched, low-severity frontend build-tool dependency advisory is documented in `SECURITY.md`; this release does not claim a clean dependency audit.
 
 ## 0.7.0
 

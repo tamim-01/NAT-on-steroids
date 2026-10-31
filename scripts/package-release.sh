@@ -13,7 +13,8 @@ mkdir -p "$release"
 NAT_RELEASE_DIR="$release" sh "$root/scripts/package-deb.sh"
 git archive --format=tar.gz --prefix="nat-on-steroids-$version/" \
   --output="$release/nat-on-steroids-$version-source.tar.gz" HEAD
-tar -czf "$release/nat-on-steroids-$version-linux-amd64.tar.gz" \
+tar --owner=0 --group=0 --numeric-owner --mode='u+rwX,go+rX,go-w' \
+  -czf "$release/nat-on-steroids-$version-linux-amd64.tar.gz" \
   -C "$root" bin/nat-on-steroids bin/n-orm-helper bin/n-orm-steroid-helper \
   bin/hev-socks5-tunnel run.sh README.md SECURITY.md CHANGELOG.md LICENSE licenses packaging
 (
