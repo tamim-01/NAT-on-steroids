@@ -1,6 +1,6 @@
 # NAT-on-steroids
 
-An experimental Linux desktop client for Firefox’s proxy service, built with Go, Wails, and Svelte. Formerly **N-orm proxy**. The protocol implementation is based on [Vauth/FoxyVPN v1.0.7](https://github.com/Vauth/FoxyVPN/tree/v1.0.7).
+An experimental Linux desktop client for Firefox’s proxy service, built with Go, Wails, and Svelte.  The protocol implementation is based on [Vauth/FoxyVPN v1.0.7](https://github.com/Vauth/FoxyVPN/tree/v1.0.7).
 
 **Unofficial:** this project is not affiliated with Mozilla or Fastly. Service eligibility, allowance, available locations, and destination restrictions are controlled by the provider. A Mozilla account alone does not guarantee access.
 
