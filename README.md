@@ -21,6 +21,8 @@ An experimental Linux desktop client for Firefox’s proxy service, built with G
 
 Experimental release **0.7.1**, Linux **x86_64**. Download the Debian package or binary archive and `SHA256SUMS` from [this repository’s Releases page](https://github.com/tamim-01/NAT-on-steroids/releases). Do not download executables from issue attachments or unknown mirrors.
 
+The source on `main` includes an HTTP 406 sign-in fix that is not yet included in the published 0.7.1 downloads. Build from source to use it until updated release downloads are available.
+
 Check the matching checksum before installation. For an individual download, compare its `sha256sum` result with the corresponding line in `SHA256SUMS`. If all three release files are present, run:
 
 ```sh

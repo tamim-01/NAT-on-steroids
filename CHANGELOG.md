@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Fixed HTTP 406 sign-in failures caused by different user agents in account and security-challenge requests.
+- Refresh challenge cookies independently, require a completed cookie valid for the account API, and preserve its scope and expiry.
+- Keep retries bounded and distinguish account API errors from security-challenge rejection. OAuth client ID, account storage, UI, and tunnel behavior are unchanged.
+- Verified the fix with regression tests and a live empty request that reaches missing-parameter validation. Real Linux account sign-in remains a separate user check. Published 0.7.1 downloads predate this fix.
+
 ## 0.7.1 — experimental release
 
 - Renamed the app, native window, project, launcher, executable, and Debian package to **NAT-on-steroids**.

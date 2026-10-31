@@ -18,7 +18,7 @@ Do not include passwords, access or refresh tokens, keyring exports, real browsi
 
 The app contacts Mozilla account, VPN, and public server-list services. Cloudflare HTTPS trace is used for exit-IP checks. DNS resolution uses Cloudflare DoH, with Google as fallback. Normal TUN DNS goes through the VPN; Direct-domain DNS in the experimental mode uses the marked direct route. The app does not implement a separate analytics service.
 
-The current OAuth implementation reuses Firefox Desktop's public client ID and an inherited MozillaVPN user-agent string. A dedicated NAT-on-steroids registration is deferred. This is an unsupported dependency, not an embedded personal secret or evidence of provider approval. No OAuth identity change is included in this publication preparation.
+The current OAuth implementation reuses Firefox Desktop's public client ID. Account API requests use the same user agent as their security-challenge exchange; VPN service requests retain the inherited MozillaVPN user agent. A dedicated NAT-on-steroids registration is deferred. This is an unsupported dependency, not an embedded personal secret or evidence of provider approval. The sign-in fix does not change the OAuth client ID.
 
 ## Privileged helpers and local access
 
